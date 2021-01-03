@@ -1,3 +1,6 @@
+import os
+
+import glob2
 import pandas as pd
 from reader import ReadFile
 from configuration import ConfigClass
@@ -28,8 +31,9 @@ class SearchEngine:
         Output:
             No output, just modifies the internal _indexer object.
         """
-        df = pd.read_parquet(fn, engine="pyarrow")
-        documents_list = df.values.tolist()
+        r = ReadFile()
+        df = r.read_file(fn)
+        documents_list = df
         # Iterate over every document in the file
         number_of_documents = 0
         for idx, document in enumerate(documents_list):
@@ -76,3 +80,17 @@ class SearchEngine:
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         return searcher.search(query)
+
+
+def main():
+    config = ConfigClass()
+    path = config.get__corpusPath()
+    search_engine = SearchEngine(config)
+
+    files_in_folder = glob2.glob(path + '/**/*.parquet')
+    for fp in files_in_folder:
+        search_engine.build_index_from_parquet(fp)
+    
+    search_engine._indexer.save_index(config.saveFilesWithoutStem)
+    
+    search_engine._indexer.load_index(config.saveFilesWithoutStem)

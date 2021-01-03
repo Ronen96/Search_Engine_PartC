@@ -1,5 +1,22 @@
-ERROR 2020-12-31 20:57:52,154: report_part_c.docx does not exist.
-ERROR 2020-12-31 20:57:52,170: search_engine_1.py does not exist.
-ERROR 2020-12-31 20:57:52,170: search_engine_2.py does not exist.
-ERROR 2020-12-31 20:58:02,395: idx_bench.pkl does not exist.
-DEBUG 2020-12-31 20:58:02,395: Total runtime was: 0:00:10.241432
+ERROR 2021-01-03 17:20:30,273: report_part_c.docx does not exist.
+INFO 2021-01-03 17:20:30,282: Successfully loaded benchmark labels data.
+INFO 2021-01-03 17:20:30,283: Successfully loaded queries data.
+ERROR 2021-01-03 17:20:30,284: search_engine_1.py does not exist.
+ERROR 2021-01-03 17:20:30,284: search_engine_2.py does not exist.
+INFO 2021-01-03 17:20:30,510: Successfully imported module search_engine_best.
+DEBUG 2021-01-03 17:20:36,890: Building the index in search_engine_best for benchmark data took 6.3464042 seconds.
+ERROR 2021-01-03 17:20:36,890: basic query for the word bioweapon returned no results
+ERROR 2021-01-03 17:20:36,890: Query 1 with keywords 'fauci paper hydroxychloroquine sars' returned no results.
+ERROR 2021-01-03 17:20:36,890: The following error occured while testing the module search_engine_best.
+ERROR 2021-01-03 17:20:36,890: too many values to unpack (expected 2)
+Traceback (most recent call last):
+  File "C:/Users/barif/PycharmProjects/Search_Engine_PartC/test_part_c_students.py", line 104, in <module>
+    q_n_res, q_res = engine.search(q_keywords)
+  File "C:\Users\barif\PycharmProjects\Search_Engine_PartC\search_engine_best.py", line 82, in search
+    return searcher.search(query)
+  File "C:\Users\barif\PycharmProjects\Search_Engine_PartC\searcher.py", line 34, in search
+    relevant_docs = self._relevant_docs_from_posting(query_as_list)
+  File "C:\Users\barif\PycharmProjects\Search_Engine_PartC\searcher.py", line 50, in _relevant_docs_from_posting
+    for doc_id, tf in posting_list:
+ValueError: too many values to unpack (expected 2)
+DEBUG 2021-01-03 17:20:36,890: Total runtime was: 0:00:06.616614

@@ -1,11 +1,25 @@
+import json
+import pickle
+import string
+from string import ascii_lowercase
+
+from nltk.corpus import stopwords
+
+
 # DO NOT MODIFY CLASS NAME
 class Indexer:
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
     def __init__(self, config):
+        self.config = config
         self.inverted_idx = {}
         self.postingDict = {}
-        self.config = config
+        self.docs_dict = {}
+        self.stop_words = stopwords.words('english')
+        self.stop_words.extend(['https', 'http', 'rt', 'www', 't.co'])
+        self.stop_words.extend(list(string.ascii_lowercase))
+        self.num_of_docs_in_corpus = 0
+        self.names_dict = {}
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -17,21 +31,137 @@ class Indexer:
         :return: -
         """
 
-        document_dictionary = document.term_doc_dictionary
-        # Go over each term in the doc
-        for term in document_dictionary.keys():
-            try:
-                # Update inverted index and posting
-                if term not in self.inverted_idx.keys():
-                    self.inverted_idx[term] = 1
-                    self.postingDict[term] = []
-                else:
-                    self.inverted_idx[term] += 1
+        self.postingDict = {}
+        self.docs_dict = {}
 
-                self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
+        document_dictionary = {}
+        count_unique_words = 0
+        doc_dictionary = document.term_doc_dictionary
+        for term in doc_dictionary:
+            if term.lower() not in self.stop_words:
+                document_dictionary[term] = doc_dictionary[term]
+
+        term_num_check = 1
+        for term in document_dictionary.keys():
+            try:  # Update inverted index and posting
+                temp_term = ''
+
+                index_in_text = [n for n, x in enumerate(document.full_text.split()) if x == term]
+                if document_dictionary[term] == 1:  # save the amount of unique words in document
+                    count_unique_words += 1
+                # first char is uppercase
+                if term[0].isupper():
+                    # entity
+                    if term in self.inverted_idx.keys():
+                        self.inverted_idx[term] += 1
+                    elif term in self.names_dict:
+                        temp_term = term
+                        self.inverted_idx[temp_term] = 1
+                        self.postingDict[temp_term] = []
+                        del(self.names_dict[temp_term])
+
+                    elif ' ' in term:
+                        self.names_dict[term] = 1
+
+                    # regular word
+                    elif term.lower() in self.inverted_idx.keys():
+                        temp_term = term.lower()
+                        self.inverted_idx[temp_term] += 1
+                        if temp_term not in self.postingDict.keys():
+                            self.postingDict[temp_term] = []
+                    elif term.upper() in self.inverted_idx.keys():
+                        temp_term = term.upper()
+                        self.inverted_idx[temp_term] += 1
+                        if temp_term not in self.postingDict.keys():
+                            self.postingDict[temp_term] = []
+                    else:
+                        temp_term = term.upper()
+                        self.inverted_idx[temp_term] = 1
+                        self.postingDict[temp_term] = []
+
+                # first char is number
+                elif term[0].isdigit():
+                    to_index = False
+                    if term.isdigit():
+                        to_index = True
+                    elif term[-1] == 'K' or term[-1] == 'M' or term[-1] == 'B':
+                        to_index = True
+                    elif '.' in term:
+                        idx = term.find('.')
+                        if term[idx + 1].isdigit():
+                            to_index = True
+
+                    if to_index:
+                        temp_term = term.upper()
+                        if term not in self.inverted_idx.keys():
+                            self.inverted_idx[temp_term] = 1
+                            self.postingDict[temp_term] = []
+                        elif term not in self.postingDict.keys():
+                            self.postingDict[temp_term] = []
+                            self.inverted_idx[temp_term] += 1
+                        else:
+                            self.inverted_idx[temp_term] += 1
+
+                # # first char is @ or #
+                # elif term[0] == '@' or term[0] == '#':
+                #     temp_term = term
+                #     if term not in self.inverted_idx.keys():
+                #         self.inverted_idx[temp_term] = [1, []]
+                #         self.postingDict[temp_term] = []
+                #     elif term not in self.postingDict.keys():
+                #         self.postingDict[temp_term] = []
+                #         self.inverted_idx[temp_term][0] += 1
+                #     else:
+                #         self.inverted_idx[temp_term][0] += 1
+
+                # other
+                elif term.lower() in self.inverted_idx.keys():
+                    temp_term = term.lower()
+                    self.inverted_idx[temp_term] += 1
+                    if temp_term not in self.postingDict.keys():
+                        self.postingDict[temp_term] = []
+                elif term.upper() in self.inverted_idx.keys():
+                    temp_term = term.lower()
+                    self.inverted_idx[temp_term] = self.inverted_idx[term.upper()]
+                    del (self.inverted_idx[term.upper()])
+                    if term.upper() not in self.postingDict.keys():
+                        self.postingDict[temp_term] = []
+                    else:
+                        self.postingDict[temp_term] = self.postingDict[term.upper()]
+                        del (self.postingDict[term.upper()])
+
+                if temp_term in self.postingDict.keys():
+                    self.postingDict[temp_term].append((document.tweet_id, document_dictionary[term], index_in_text))
+                term_num_check += 1
 
             except:
-                print('problem with the following key {}'.format(term[0]))
+                print('problem with the following key {}'.format(term))
+                print(document_dictionary.keys())
+                print(self.num_of_docs_in_corpus, term_num_check)
+        self.num_of_docs_in_corpus += 1
+
+        if document_dictionary:  # if dict isn't empty
+            self.docs_dict[document.tweet_id] = (
+                document_dictionary[max(document_dictionary, key=document_dictionary.get)], document.tweet_date,
+                count_unique_words)
+
+        # TODO: check if docs dict suppose to be in memory
+        with open('docs_dict.json', 'a') as outfile:
+            for key in self.docs_dict.keys():
+                json.dump({key: self.docs_dict[key]}, outfile)
+                outfile.write('\n')
+
+        # sorted_posting_keys = sorted(self.postingDict.keys(), key=lambda x: x.lower())
+
+    # with open((output_path + '\\other.json'), 'a') as outfile:
+    #     while i < len(sorted_posting_keys) and not sorted_posting_keys[i][0].isalpha() and not \
+    #             sorted_posting_keys[i][0] == '@' and not sorted_posting_keys[i][0].isdigit() and not \
+    #             sorted_posting_keys[i][0] == '#':
+    #         json.dump({sorted_posting_keys[i]: self.postingDict[sorted_posting_keys[i]]}, outfile)
+    #         outfile.write('\n')
+    #         self.inverted_idx[sorted_posting_keys[i]][1].append(self.file_line_indexes['other'])
+    #         self.file_line_indexes['other'] += 1
+    #         i += 1
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -41,7 +171,8 @@ class Indexer:
         Input:
             fn - file name of pickled index.
         """
-        raise NotImplementedError
+        with open(fn + '.pkl', 'rb') as f:
+            return pickle.load(f)
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -51,7 +182,8 @@ class Indexer:
         Input:
               fn - file name of pickled index.
         """
-        raise NotImplementedError
+        with open(fn + '.pkl', 'wb') as f:
+            pickle.dump(self.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
 
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.
