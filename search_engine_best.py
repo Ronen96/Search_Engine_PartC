@@ -42,6 +42,7 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
+        self._indexer.save_index(self._config.saveFilesWithoutStem)
         print('Finished parsing and indexing.')
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -81,6 +82,10 @@ class SearchEngine:
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         return searcher.search(query)
 
+    @property
+    def indexer(self):
+        return self._indexer
+
 
 def main():
     config = ConfigClass()
@@ -90,7 +95,5 @@ def main():
     files_in_folder = glob2.glob(path + '/**/*.parquet')
     for fp in files_in_folder:
         search_engine.build_index_from_parquet(fp)
-    
-    search_engine._indexer.save_index(config.saveFilesWithoutStem)
-    
-    search_engine._indexer.load_index(config.saveFilesWithoutStem)
+    search_engine.indexer.load_index(config.saveFilesWithoutStem)
+
