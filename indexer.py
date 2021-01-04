@@ -31,9 +31,6 @@ class Indexer:
         :return: -
         """
 
-        self.postingDict = {}
-        self.docs_dict = {}
-
         document_dictionary = {}
         count_unique_words = 0
         doc_dictionary = document.term_doc_dictionary
@@ -53,12 +50,13 @@ class Indexer:
                 if term[0].isupper():
                     # entity
                     if term in self.inverted_idx.keys():
+                        temp_term = term
                         self.inverted_idx[term] += 1
                     elif term in self.names_dict:
                         temp_term = term
                         self.inverted_idx[temp_term] = 2
                         self.postingDict[temp_term] = []
-                        del(self.names_dict[temp_term])
+                        del (self.names_dict[temp_term])
 
                     elif ' ' in term:
                         self.names_dict[term] = 1
@@ -67,13 +65,10 @@ class Indexer:
                     elif term.lower() in self.inverted_idx.keys():
                         temp_term = term.lower()
                         self.inverted_idx[temp_term] += 1
-                        if temp_term not in self.postingDict.keys():
-                            self.postingDict[temp_term] = []
                     elif term.upper() in self.inverted_idx.keys():
                         temp_term = term.upper()
                         self.inverted_idx[temp_term] += 1
-                        if temp_term not in self.postingDict.keys():
-                            self.postingDict[temp_term] = []
+
                     else:
                         temp_term = term.upper()
                         self.inverted_idx[temp_term] = 1
@@ -96,9 +91,6 @@ class Indexer:
                         if term not in self.inverted_idx.keys():
                             self.inverted_idx[temp_term] = 1
                             self.postingDict[temp_term] = []
-                        elif term not in self.postingDict.keys():
-                            self.postingDict[temp_term] = []
-                            self.inverted_idx[temp_term] += 1
                         else:
                             self.inverted_idx[temp_term] += 1
 
@@ -115,20 +107,21 @@ class Indexer:
                 #         self.inverted_idx[temp_term][0] += 1
 
                 # other
-                elif term.lower() in self.inverted_idx.keys():
-                    temp_term = term.lower()
-                    self.inverted_idx[temp_term] += 1
-                    if temp_term not in self.postingDict.keys():
-                        self.postingDict[temp_term] = []
-                elif term.upper() in self.inverted_idx.keys():
-                    temp_term = term.lower()
-                    self.inverted_idx[temp_term] = self.inverted_idx[term.upper()]
-                    del (self.inverted_idx[term.upper()])
-                    if term.upper() not in self.postingDict.keys():
-                        self.postingDict[temp_term] = []
-                    else:
+                elif term[0].islower():
+                    if term.lower() in self.inverted_idx.keys():
+                        temp_term = term.lower()
+                        self.inverted_idx[temp_term] += 1
+                    if term.upper() in self.inverted_idx.keys():
+                        temp_term = term.lower()
+                        self.inverted_idx[temp_term] = self.inverted_idx[term.upper()]
                         self.postingDict[temp_term] = self.postingDict[term.upper()]
+
+                        del (self.inverted_idx[term.upper()])
                         del (self.postingDict[term.upper()])
+                    else:
+                        temp_term = term.lower()
+                        self.inverted_idx[temp_term] = 1
+                        self.postingDict[temp_term] = []
 
                 if temp_term in self.postingDict.keys():
                     self.postingDict[temp_term].append((document.tweet_id, document_dictionary[term], index_in_text))
@@ -146,10 +139,10 @@ class Indexer:
                 count_unique_words)
 
         # TODO: check if docs dict suppose to be in memory
-        with open('docs_dict.json', 'a') as outfile:
-            for key in self.docs_dict.keys():
-                json.dump({key: self.docs_dict[key]}, outfile)
-                outfile.write('\n')
+        # with open('docs_dict.json', 'a') as outfile:
+        #     for key in self.docs_dict.keys():
+        #         json.dump({key: self.docs_dict[key]}, outfile)
+        #         outfile.write('\n')
 
         # sorted_posting_keys = sorted(self.postingDict.keys(), key=lambda x: x.lower())
 
@@ -172,7 +165,8 @@ class Indexer:
             fn - file name of pickled index.
         """
         with open(fn + '/inverted_idx.pkl', 'rb') as f:
-            return pickle.load(f)
+            self.inverted_idx, self.postingDict, self.docs_dict = pickle.load(f)
+            return self.inverted_idx, self.postingDict, self.docs_dict
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -182,8 +176,9 @@ class Indexer:
         Input:
               fn - file name of pickled index.
         """
+        all_dicts = [self.inverted_idx, self.postingDict, self.docs_dict]
         with open(fn + '/inverted_idx.pkl', 'wb') as f:
-            pickle.dump(self.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(all_dicts, f, pickle.HIGHEST_PROTOCOL)
 
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.
