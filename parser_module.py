@@ -350,8 +350,8 @@ class Parse:
     def parse_names_and_entities(self, text):
         curr_name = ''
         for i in range(len(text)):
-            if text[i] == '':
-                print(text)
+            if text[i].isupper():
+                return curr_name, i
             if text[i][0].isupper():
                 if curr_name == '':  # for first word ignore space
                     curr_name += text[i]

@@ -56,7 +56,7 @@ class Indexer:
                         self.inverted_idx[term] += 1
                     elif term in self.names_dict:
                         temp_term = term
-                        self.inverted_idx[temp_term] = 1
+                        self.inverted_idx[temp_term] = 2
                         self.postingDict[temp_term] = []
                         del(self.names_dict[temp_term])
 
