@@ -171,7 +171,7 @@ class Indexer:
         Input:
             fn - file name of pickled index.
         """
-        with open(fn + '.pkl', 'rb') as f:
+        with open(fn + '/inverted_idx.pkl', 'rb') as f:
             return pickle.load(f)
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -182,7 +182,7 @@ class Indexer:
         Input:
               fn - file name of pickled index.
         """
-        with open(fn + '.pkl', 'wb') as f:
+        with open(fn + '/inverted_idx.pkl', 'wb') as f:
             pickle.dump(self.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
 
     # feel free to change the signature and/or implementation of this function 
