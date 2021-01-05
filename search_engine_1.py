@@ -1,3 +1,5 @@
+import time
+
 import glob2
 import pandas as pd
 from nltk.corpus import wordnet
@@ -45,7 +47,7 @@ class SearchEngine:
             self._indexer.add_new_doc(parsed_document)
 
         self._indexer.save_index(self._config.saveFilesWithoutStem)
-        print('Finished parsing and indexing.')
+        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -115,11 +117,15 @@ def main():
     search_engine = SearchEngine(config)
 
     # files_in_folder = glob2.glob(path + '/**/*.parquet')
+    # start_time = time.time()
     # for fp in files_in_folder:
     #     search_engine.build_index_from_parquet(fp)
+    #
+    # end_time = time.time()
+    # print("--- %s seconds ---" % (end_time - start_time))
 
     search_engine.indexer.load_index(config.saveFilesWithoutStem)
-    bla = search_engine.search('covid is hapenning here Dr Fauci')
+    bla = search_engine.search('Dr. Anthony Fauci wrote in a 2005 paper published in Virology Journal that hydroxychloroquine was effective in treating SARS.	fauci paper hydroxychloroquine sars')
 
 
 main()

@@ -46,36 +46,20 @@ class Searcher:
         :param query_as_list: parsed query tokens
         :return: dictionary of relevant documents mapping doc_id to document frequency.
         """
-        relevant_docs = {}  # key- tweet id , value
-        terms = {}  # key- term , value- (tweet id, fi)
-        docs_content = {}
+        relevant_docs = {}  # key- tweet id , value- words vector
+        docs_vector = {}  # key- docID, value- vector of words
 
         query_dict = {}  # to check how many times word appear in the query
         for term in query_as_list:
             try:
-                if term in self.inverted_index.keys():
+                if term in self._indexer.inverted_idx.keys():
                     temp_term = term
-                elif term.lower() in self.inverted_index.keys():
+                elif term.lower() in self._indexer.inverted_idx.keys():
                     temp_term = term.lower()
-                elif term.upper() in self.inverted_index.keys():
+                elif term.upper() in self._indexer.inverted_idx.keys():
                     temp_term = term.upper()
                 else:
                     continue
-                dict_of_doc_ids = self.extract_from_posting_file(temp_term, self.inverted_index[temp_term][1])
-                key = [*dict_of_doc_ids][0]
-                terms[temp_term] = dict_of_doc_ids[key][0]
-                for doc in terms[temp_term]:
-                    if doc[0] not in docs_content.keys():
-                        docs_content[doc[0]] = [[temp_term, doc[1]]]
-                        relevant_docs[doc[0]] = []
-                    else:
-                        exists = False
-                        for pair in docs_content[doc[0]]:
-                            if pair[0] == term:
-                                pair[1] += 1
-                                exists = True
-                        if not exists:
-                            docs_content[doc[0]].append([term, doc[1]])
 
                 if temp_term not in query_dict.keys():
                     query_dict[temp_term] = 1
@@ -85,42 +69,56 @@ class Searcher:
             except:
                 print('term {} not found in posting'.format(term))
 
-        idf = []
+        i = 0
+        for term in query_dict.keys():
+            for doc_id, fi, doc_len in self._indexer.postingDict[term]:
+                if doc_id not in docs_vector.keys():
+                    docs_vector[doc_id] = [0] * len(query_dict.keys())
+                tf = fi / self._indexer.docs_dict[doc_id][0] #doc_len
+                idf = math.log(len(self._indexer.docs_dict.keys()) / self._indexer.inverted_idx[term], 2)
+                docs_vector[doc_id][i] = tf * idf
+            i += 1
+
+
         # query_vec = []
         #
         # for term in query_dict:
         #     query_vec.append(query_dict[term])
         #
         # normalized_query = np.divide(query_vec, max(query_vec))
-        for word in query_dict.keys():
-            try:
-                if word in self.inverted_index.keys():
-                    dfi = self.inverted_index[word][0]
-                    idf.append(math.log(num_of_docs_in_corpus / dfi, 2))
-
-                    for doc in docs_content.keys():
-                        exist = False
-                        for pair in docs_content[doc]:
-                            if word == pair[0]:
-                                relevant_docs[doc].append(pair[1])
-                                exist = True
-
-                        if not exist:
-                            relevant_docs[doc].append(0)
-
-            except:
-                print('term {} not found in inverted index'.format(word))
+        # for word in query_dict.keys():
+        #     try:
+        #         if word in self._indexer.inverted_idx.keys():
+        #             dfi = self._indexer.inverted_idx[word]
+        #             idf.append(math.log(len(self._indexer.docs_dict.keys()) / dfi, 2))
+        #
+        #             for doc in docs_vector.keys():
+        #                 exist = False
+        #                 for pair in docs_vector[doc]:
+        #                     if word == pair[0]:
+        #                         relevant_docs[doc].append(pair[1])
+        #                         exist = True
+        #
+        #                 if not exist:
+        #                     relevant_docs[doc].append(0)
+        #
+        #             max_tf = j_content[key][0]
+        #             relevant_docs[key] = np.divide(relevant_docs[key], max_tf)
+        #             relevant_docs[key] = np.multiply(relevant_docs[key], idf)
+        #
+        #     except:
+        #         print('term {} not found in inverted index'.format(word))
 
         # divide each element in the vector by thr max(f) of the doc. the information in docs_dict
 
-        with open('docs_dict.json', 'r') as f:
-            for line in f:
-                j_content = json.loads(line)
-                key = [*j_content][0]
-                if key in relevant_docs.keys():
-                    max_tf = j_content[key][0]
-                    relevant_docs[key] = np.divide(relevant_docs[key], max_tf)
-                    relevant_docs[key] = np.multiply(relevant_docs[key], idf)
+        # with open('docs_dict.json', 'r') as f:
+        #     for line in f:
+        #         j_content = json.loads(line)
+        #         key = [*j_content][0]
+        #         if key in relevant_docs.keys():
+        #             max_tf = j_content[key][0]
+        #             relevant_docs[key] = np.divide(relevant_docs[key], max_tf)
+        #             relevant_docs[key] = np.multiply(relevant_docs[key], idf)
 
         # calculate idf of each element in the vector (idf is log2(number of docs in the corpus \ df(from inverted index)
 
@@ -128,7 +126,7 @@ class Searcher:
 
         # return relevant docs
 
-        return relevant_docs  # , normalized_query
+        return docs_vector #relevant_docs
         # relevant_docs = {}
         # for term in query_as_list:
         #     posting_list = self._indexer.get_term_posting_list(term)

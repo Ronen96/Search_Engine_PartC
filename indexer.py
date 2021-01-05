@@ -43,7 +43,7 @@ class Indexer:
             try:  # Update inverted index and posting
                 temp_term = ''
 
-                index_in_text = [n for n, x in enumerate(document.full_text.split()) if x == term]
+                # index_in_text = [n for n, x in enumerate(document.full_text.split()) if x == term]
                 if document_dictionary[term] == 1:  # save the amount of unique words in document
                     count_unique_words += 1
                 # first char is uppercase
@@ -88,7 +88,7 @@ class Indexer:
 
                     if to_index:
                         temp_term = term.upper()
-                        if term not in self.inverted_idx.keys():
+                        if temp_term not in self.inverted_idx.keys():
                             self.inverted_idx[temp_term] = 1
                             self.postingDict[temp_term] = []
                         else:
@@ -111,11 +111,11 @@ class Indexer:
                     if term.lower() in self.inverted_idx.keys():
                         temp_term = term.lower()
                         self.inverted_idx[temp_term] += 1
-                    if term.upper() in self.inverted_idx.keys():
+                    elif term.upper() in self.inverted_idx.keys():
                         temp_term = term.lower()
                         self.inverted_idx[temp_term] = self.inverted_idx[term.upper()]
                         self.postingDict[temp_term] = self.postingDict[term.upper()]
-
+                        self.inverted_idx[temp_term] += 1
                         del (self.inverted_idx[term.upper()])
                         del (self.postingDict[term.upper()])
                     else:
@@ -124,7 +124,8 @@ class Indexer:
                         self.postingDict[temp_term] = []
 
                 if temp_term in self.postingDict.keys():
-                    self.postingDict[temp_term].append((document.tweet_id, document_dictionary[term], index_in_text))
+                    self.postingDict[temp_term].append((document.tweet_id, document_dictionary[term],
+                                                        sum(document_dictionary.values())))
                 term_num_check += 1
 
             except:
