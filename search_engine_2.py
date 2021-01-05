@@ -80,22 +80,19 @@ class SearchEngine:
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         query_as_list = self._parser.parse_sentence(query)
-        add_to_query = []
+        add_to_query = {}
         for q in query_as_list:
             for syn in wordnet.synsets(q):
                 for lemma in syn.lemmas():
                     if lemma.name() == q.lower():
                         continue
-                    pos_lemma = wordnet.synsets(lemma.name())[0].pos()
-                    pos_query = wordnet.synsets(q)[0].pos()
-                    c1 = wordnet.synset(lemma.name() + '.' + pos_lemma + '.01')
-                    c2 = wordnet.synset(lemma.name() + '.' + pos_query + '.01')
-                    score = c1.wup_similarity(c2)
-                    # score = wordnet.synset(lemma.name() + '.' + pos_lemma + '.01').wup_similarity(wordnet.synset(q + '.' + pos_query + '.01'))
+                    score = wordnet.synsets(q)[0].wup_similarity(syn)
                     if score is not None and score > 0.8:
-                        add_to_query.append(lemma.name())
+                        add_to_query[lemma.name()] = score
 
-        query_as_list.extend(set(add_to_query))
+        if len(add_to_query) > 3:
+            add_to_query = sorted(add_to_query.items(), key=lambda item: item[1], reverse=True)
+        query_as_list.extend([add_to_query[0][0], add_to_query[1][0] , add_to_query[2][0]])
         new_query = ' '.join(query_as_list)
 
         relevant_docs = searcher.search(new_query)
@@ -120,6 +117,6 @@ def main():
 
     search_engine.indexer.load_index(config.saveFilesWithoutStem)
 
-    search_engine.search('Herd immunity has been reached.')
+    search_engine.search('healthy people should NOT wear masks')
 
 main()
