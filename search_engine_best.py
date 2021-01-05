@@ -80,7 +80,8 @@ class SearchEngine:
             and the last is the least relevant result.
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(query)
+        relevant_docs = searcher.search(query)
+        return relevant_docs
 
     @property
     def indexer(self):
@@ -92,8 +93,11 @@ def main():
     path = config.get__corpusPath()
     search_engine = SearchEngine(config)
 
-    files_in_folder = glob2.glob(path + '/**/*.parquet')
-    for fp in files_in_folder:
-        search_engine.build_index_from_parquet(fp)
+    # files_in_folder = glob2.glob(path + '/**/*.parquet')
+    # for fp in files_in_folder:
+    #     search_engine.build_index_from_parquet(fp)
+
     search_engine.indexer.load_index(config.saveFilesWithoutStem)
+
+    search_engine.search('Herd immunity has been reached.')
 

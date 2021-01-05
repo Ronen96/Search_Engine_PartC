@@ -87,12 +87,12 @@ class SearchEngine:
         inverted_idx = self.indexer.inverted_idx
         spell = SpellChecker()
         misspelled = spell.unknown(query_as_list)
-
+        assist = [x.lower() for x in query_as_list]
         for word in misspelled:
             if word.upper() in inverted_idx.keys() or word.lower() in inverted_idx.keys() or ' ' in word:
                 continue
 
-            word_idx = query_as_list.index(word)
+            word_idx = assist.index(word)
             query_as_list[word_idx] = spell.correction(word)
 
             # candidates = spell.edit_distance_1(word)
@@ -125,7 +125,7 @@ def main():
     # print("--- %s seconds ---" % (end_time - start_time))
 
     search_engine.indexer.load_index(config.saveFilesWithoutStem)
-    bla = search_engine.search('Dr. Anthony Fauci wrote in a 2005 paper published in Virology Journal that hydroxychloroquine was effective in treating SARS.	fauci paper hydroxychloroquine sars')
+    bla = search_engine.search('Hrd emmunity has been teached.')
 
 
 main()

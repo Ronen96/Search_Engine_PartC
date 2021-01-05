@@ -96,7 +96,11 @@ class SearchEngine:
                         add_to_query.append(lemma.name())
 
         query_as_list.extend(set(add_to_query))
-        return searcher.search(query_as_list)
+        new_query = ' '.join(query_as_list)
+
+        relevant_docs = searcher.search(new_query)
+
+        return relevant_docs
 
     @property
     def indexer(self):
@@ -112,7 +116,7 @@ def main():
     # for fp in files_in_folder:
     #     search_engine.build_index_from_parquet(fp)
 
-    search_engine._indexer.save_index(config.saveFilesWithoutStem)
+    # search_engine._indexer.save_index(config.saveFilesWithoutStem)
 
     search_engine.indexer.load_index(config.saveFilesWithoutStem)
 
