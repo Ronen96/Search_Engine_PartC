@@ -47,7 +47,30 @@ class Indexer:
                 if document_dictionary[term] == 1:  # save the amount of unique words in document
                     count_unique_words += 1
                 # first char is uppercase
-                if term[0].isupper():
+                # first char is number
+                if term[0].isdigit():
+                    to_index = False
+                    if term.isdigit():
+                        to_index = True
+                    elif term[-1] == 'K' or term[-1] == 'M' or term[-1] == 'B':
+                        to_index = True
+                    elif '.' in term:
+                        idx = term.find('.')
+                        if term[idx + 1].isdigit():
+                            to_index = True
+
+                    if to_index:
+                        temp_term = term.upper()
+                        if temp_term not in self.inverted_idx.keys():
+                            self.inverted_idx[temp_term] = 1
+                            self.postingDict[temp_term] = []
+                        else:
+                            self.inverted_idx[temp_term] += 1
+
+                elif '.' in term:
+                    continue
+
+                elif term[0].isupper():
                     # entity
                     if term in self.inverted_idx.keys():
                         temp_term = term
@@ -73,26 +96,6 @@ class Indexer:
                         temp_term = term.upper()
                         self.inverted_idx[temp_term] = 1
                         self.postingDict[temp_term] = []
-
-                # first char is number
-                elif term[0].isdigit():
-                    to_index = False
-                    if term.isdigit():
-                        to_index = True
-                    elif term[-1] == 'K' or term[-1] == 'M' or term[-1] == 'B':
-                        to_index = True
-                    elif '.' in term:
-                        idx = term.find('.')
-                        if term[idx + 1].isdigit():
-                            to_index = True
-
-                    if to_index:
-                        temp_term = term.upper()
-                        if temp_term not in self.inverted_idx.keys():
-                            self.inverted_idx[temp_term] = 1
-                            self.postingDict[temp_term] = []
-                        else:
-                            self.inverted_idx[temp_term] += 1
 
                 # # first char is @ or #
                 # elif term[0] == '@' or term[0] == '#':
@@ -127,6 +130,8 @@ class Indexer:
                     self.postingDict[temp_term].append((document.tweet_id, document_dictionary[term],
                                                         sum(document_dictionary.values())))
                 term_num_check += 1
+
+
 
             except:
                 print('problem with the following key {}'.format(term))
@@ -165,7 +170,7 @@ class Indexer:
         Input:
             fn - file name of pickled index.
         """
-        with open(fn + '/inverted_idx.pkl', 'rb') as f:
+        with open(fn, 'rb') as f:
             self.inverted_idx, self.postingDict, self.docs_dict = pickle.load(f)
             return self.inverted_idx, self.postingDict, self.docs_dict
 
@@ -178,7 +183,7 @@ class Indexer:
               fn - file name of pickled index.
         """
         all_dicts = [self.inverted_idx, self.postingDict, self.docs_dict]
-        with open(fn + '/inverted_idx.pkl', 'wb') as f:
+        with open(fn, 'wb') as f:
             pickle.dump(all_dicts, f, pickle.HIGHEST_PROTOCOL)
 
     # feel free to change the signature and/or implementation of this function 

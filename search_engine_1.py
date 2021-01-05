@@ -46,7 +46,7 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
 
-        self._indexer.save_index(self._config.saveFilesWithoutStem)
+        self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -116,16 +116,18 @@ def main():
     path = config.get__corpusPath()
     search_engine = SearchEngine(config)
 
-    # files_in_folder = glob2.glob(path + '/**/*.parquet')
-    # start_time = time.time()
-    # for fp in files_in_folder:
-    #     search_engine.build_index_from_parquet(fp)
-    #
-    # end_time = time.time()
-    # print("--- %s seconds ---" % (end_time - start_time))
+    files_in_folder = glob2.glob(path + '/**/*.parquet')
+    start_time = time.time()
+    for fp in files_in_folder:
+        search_engine.build_index_from_parquet(fp)
 
-    search_engine.indexer.load_index(config.saveFilesWithoutStem)
-    bla = search_engine.search('Hrd emmunity has been teached.')
+    end_time = time.time()
+    print("--- %s seconds ---" % (end_time - start_time))
+
+    search_engine.indexer.load_index('idx_bench.pkl')
+    # bla = search_engine.search('Hrd emmunity has been teached.')
+    sorted_inverted = sorted(search_engine.indexer.inverted_idx.items(), key=lambda item: item[1], reverse=True)
+
 
 
 main()
