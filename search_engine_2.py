@@ -42,7 +42,7 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
         print('Finished parsing and indexing.')
-        self._indexer.save_index(self._config.saveFilesWithoutStem)
+        self._indexer.save_index('idx_bench.pkl')
 
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -104,19 +104,19 @@ class SearchEngine:
         return self._indexer
 
 
-def main():
-    config = ConfigClass()
-    path = config.get__corpusPath()
-    search_engine = SearchEngine(config)
+# def main():
+    # config = ConfigClass()
+    # path = config.get__corpusPath()
+    # search_engine = SearchEngine(config)
+    #
+    # # files_in_folder = glob2.glob(path + '/**/*.parquet')
+    # # for fp in files_in_folder:
+    # #     search_engine.build_index_from_parquet(fp)
+    #
+    # # search_engine._indexer.save_index(config.saveFilesWithoutStem)
+    #
+    # search_engine.indexer.load_index(config.saveFilesWithoutStem)
+    #
+    # search_engine.search('healthy people should NOT wear masks')
 
-    # files_in_folder = glob2.glob(path + '/**/*.parquet')
-    # for fp in files_in_folder:
-    #     search_engine.build_index_from_parquet(fp)
-
-    # search_engine._indexer.save_index(config.saveFilesWithoutStem)
-
-    search_engine.indexer.load_index(config.saveFilesWithoutStem)
-
-    search_engine.search('healthy people should NOT wear masks')
-
-main()
+# main()

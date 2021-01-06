@@ -28,5 +28,5 @@ class Ranker:
 
         if k is not None:
             ranked_results = ranked_results[:k]
-        return [d for d in ranked_results]
+        return [d[0] for d in ranked_results]
 
