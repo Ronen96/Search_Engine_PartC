@@ -1,4 +1,7 @@
+import csv
 import os
+import pickle
+import time
 
 import glob2
 import pandas as pd
@@ -43,8 +46,16 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        self._indexer.save_index('indverted_idx.pkl')
-        print('Finished parsing and indexing.')
+            # self._indexer.docs_dict = {}
+        # with open('indverted_idx.pkl', 'wb') as f:
+        #     pickle.dump(self._indexer.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
+        #
+        # with open('posting_dict.pkl', 'wb') as f:
+        #     pickle.dump(self._indexer.postingDict, f, pickle.HIGHEST_PROTOCOL)
+
+        # self._indexer.save_index('indverted_idx.pkl')
+        self._indexer.save_index('idx_bench.pkl')
+        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -81,8 +92,8 @@ class SearchEngine:
             and the last is the least relevant result.
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        relevant_docs = searcher.search(query)
-        return relevant_docs
+        n_relevant, ranked_doc_ids = searcher.search(query)
+        return n_relevant, ranked_doc_ids
 
     @property
     def indexer(self):
@@ -94,32 +105,62 @@ def main():
     path = config.get__corpusPath()
     search_engine = SearchEngine(config)
 
-    files_in_folder = glob2.glob(path + '/**/*.parquet')
-    for fp in files_in_folder:
-        search_engine.build_index_from_parquet(fp)
+    # files_in_folder = glob2.glob(path + '/**/*.parquet')
+    # start_time = time.time()
+    # for fp in files_in_folder:
+    #     search_engine.build_index_from_parquet(fp)
+    #
+    # end_time = time.time()
+    # print("--- %s seconds ---" % (end_time - start_time))
 
-    search_engine.indexer.load_index('indverted_idx.pkl')
+    # search_engine.indexer.load_index('indverted_idx.pkl')
+    search_engine.indexer.load_index('idx_bench.pkl')
 
-    #write ranked result to csv
+    # with open('indverted_idx.pkl', 'rb') as f:
+    #     search_engine.indexer.inverted_idx = pickle.load(f)
+    #
+    # with open('posting_dict.pkl', 'rb') as f:
+    #     search_engine.indexer.postingDict = pickle.load(f)
+    #
+    # sorted_inverted = sorted(search_engine.indexer.inverted_idx.items(), key=lambda item: item[1], reverse=True)
+    # sorted_posting = sorted(search_engine.indexer.postingDict.items(), key=lambda item: item[1], reverse=True)
+    #
+    # with open('4K_terms.pkl', 'wb') as f:
+    #     pickle.dump(sorted_inverted[:4000], f, pickle.HIGHEST_PROTOCOL)
+    #
+    # with open('posting_4k.pkl', 'wb') as f:
+    #     pickle.dump(sorted_posting[:4000], f, pickle.HIGHEST_PROTOCOL)
+
+    # write ranked result to csv
     with open('queries.txt', encoding="utf8") as f:
         # line_number = 0
+        data_to_csv = pd.DataFrame(columns=['query number', 'tweet id', 'Rank'])
+        data_to_csv2 = pd.DataFrame(columns=['query number', 'precision', 'precision@5', 'precision@10', 'precision@50',
+                                             'recall', 'MAP'])
         for line in f.readlines():
             if line != '\n':
-                line_number = line[0]
+                query_number = int(line[0])
                 line = line[1:]
-                for doc_tuple in search_engine.search(line):
-                    data_to_csv = data_to_csv.append({'query number': line_number, 'tweet id': doc_tuple[0], 'Rank': doc_tuple[1]}, ignore_index=True)
+                n_relevant, ranked_doc_ids = search_engine.search(line)
+                for doc, rank in ranked_doc_ids:
+                    data_to_csv = data_to_csv.append(
+                        {'query number': query_number, 'tweet id': doc, 'Rank': rank},
+                        ignore_index=True)
+                #
+                # check result
+                df = pd.read_csv(config.get__corpusPath() + '/benchmark_lbls_train.csv')
+                precision = metrics.precision(df, True, query_number)
+                precision_5 = metrics.precision_at_n(df, query_number, 5)
+                precision_10 = metrics.precision_at_n(df, query_number, 10)
+                precision_50 = metrics.precision_at_n(df, query_number, 50)
+                recall = metrics.recall(df, {query_number: n_relevant})
+                MAP = metrics.map(df)
 
-                #check result
-                df = pd.read_csv(config.get__corpusPath() + 'benchmark_lbls_train.csv')
-                metrics.precision(df, True, line_number)
-                metrics.precision_at_n(df, line_number, 5)
-                metrics.precision_at_n(df, line_number, 10)
-                metrics.precision_at_n(df, line_number, 50)
-                metrics.recall(df,)
+                data_to_csv2 = data_to_csv2.append({'query number': query_number, 'precision': precision,
+                                                    'precision@5': precision_5, 'precision@10': precision_10,
+                                                    'precision@50': precision_50, 'recall': recall, 'MAP': MAP},
+                                                   ignore_index=True)
+
                 # line_number += 1
         data_to_csv.to_csv('result.csv', index=False)
-
-
-    metrics.precision_at_n(config.get__corpusPath() + 'benchmark_lbls_train.csv', )
-
+        data_to_csv2.to_csv('metrics_result.csv', index=False)

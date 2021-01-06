@@ -134,9 +134,10 @@ class Indexer:
 
 
             except:
-                print('problem with the following key {}'.format(term))
-                print(document_dictionary.keys())
-                print(self.num_of_docs_in_corpus, term_num_check)
+                pass
+                # print('problem with the following key {}'.format(term))
+                # print(document_dictionary.keys())
+                # print(self.num_of_docs_in_corpus, term_num_check)
         self.num_of_docs_in_corpus += 1
 
         if document_dictionary:  # if dict isn't empty
