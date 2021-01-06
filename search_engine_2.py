@@ -92,9 +92,11 @@ class SearchEngine:
 
         if len(add_to_query) > 3:
             add_to_query = sorted(add_to_query.items(), key=lambda item: item[1], reverse=True)
-        query_as_list.extend([add_to_query[0][0], add_to_query[1][0] , add_to_query[2][0]])
-        new_query = ' '.join(query_as_list)
+            query_as_list.extend([add_to_query[0][0], add_to_query[1][0], add_to_query[2][0]])
+        else:
+            query_as_list.extend(add_to_query)
 
+        new_query = ' '.join(query_as_list)
         relevant_docs = searcher.search(new_query)
 
         return relevant_docs
