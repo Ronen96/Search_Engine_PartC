@@ -74,7 +74,7 @@ class Searcher:
             for doc_id, fi, doc_len in self._indexer.postingDict[term]:
                 if doc_id not in docs_vector.keys():
                     docs_vector[doc_id] = [0] * len(query_dict.keys())
-                tf = fi / doc_len #self._indexer.docs_dict[doc_id][0]
+                tf = fi / self._indexer.docs_dict[doc_id][0]  # doc_len
                 idf = math.log(len(self._indexer.docs_dict.keys()) / self._indexer.inverted_idx[term], 2)
                 docs_vector[doc_id][i] = tf * idf
             i += 1

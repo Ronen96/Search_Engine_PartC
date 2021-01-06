@@ -5,7 +5,7 @@ import pandas as pd
 from nltk.corpus import wordnet
 
 import metrics
-from advanced_parser import Advenced_Parse
+from advanced_parser import Advanced_Parse
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
@@ -25,7 +25,7 @@ class SearchEngine:
     def __init__(self, config=None):
         self._config = config
         self._parser = Parse()
-        self._advanced_parser = Advenced_Parse()
+        self._advanced_parser = Advanced_Parse()
         self._indexer = Indexer(config)
         self._model = None
 
@@ -100,20 +100,20 @@ class SearchEngine:
         return self._indexer
 
 
-def main():
-    config = ConfigClass()
-    path = config.get__corpusPath()
-    search_engine = SearchEngine(config)
+# def main():
+#     config = ConfigClass()
+#     path = config.get__corpusPath()
+#     search_engine = SearchEngine(config)
 #
-    files_in_folder = glob2.glob(path + '/**/*.parquet')
-    start_time = time.time()
-    for fp in files_in_folder:
-        search_engine.build_index_from_parquet(fp)
-
-    end_time = time.time()
-    print("--- %s seconds ---" % (end_time - start_time))
+#     files_in_folder = glob2.glob(path + '/**/*.parquet')
+#     start_time = time.time()
+#     for fp in files_in_folder:
+#         search_engine.build_index_from_parquet(fp)
 #
-    search_engine.indexer.load_index('idx_bench_advanced_parser.pkl')
+#     end_time = time.time()
+#     print("--- %s seconds ---" % (end_time - start_time))
+#
+#     search_engine.indexer.load_index('idx_bench_advanced_parser.pkl')
 
 #
 #     with open('queries.txt', encoding="utf8") as f:
