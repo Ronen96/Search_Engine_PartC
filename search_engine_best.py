@@ -1,17 +1,13 @@
-import csv
-import os
-import pickle
 import time
 
 import glob2
-import pandas as pd
-from reader import ReadFile
+from spellchecker import SpellChecker
+
 from configuration import ConfigClass
-from parser_module import Parse
 from indexer import Indexer
+from parser_module import Parse
+from reader import ReadFile
 from searcher import Searcher
-import utils
-import metrics
 
 
 # DO NOT CHANGE THE CLASS NAME
@@ -46,7 +42,7 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-
+        # self._indexer.save_index('indverted_idx.pkl')
         self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
@@ -85,7 +81,36 @@ class SearchEngine:
             and the last is the least relevant result.
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        relevant_docs = searcher.search(query)
+        # spell checker
+        query_as_list = self._parser.parse_sentence(query)
+        inverted_idx = self.indexer.inverted_idx
+        spell = SpellChecker()
+        misspelled = spell.unknown(query_as_list)
+        assist = [x.lower() for x in query_as_list]  # all the query terms in lower case
+
+        for word in misspelled:
+            if word.upper() in inverted_idx.keys() or word.lower() in inverted_idx.keys() or ' ' in word:
+                continue  # if the word is in the inverted index- no correction need
+
+            word_idx = assist.index(word)
+            corrections = spell.edit_distance_1(word)  # list of all the suggested corrections with distance value 1
+            corrections_dict = {}
+            # check if the suggested corrections is in inverted index and collect the frequency of each correction
+            for correction in corrections:
+                if correction.upper() in inverted_idx.keys():
+                    corrections_dict[correction] = inverted_idx[correction.upper()]
+
+                if correction.lower() in inverted_idx.keys():
+                    corrections_dict[correction] = inverted_idx[correction.lower()]
+
+            if corrections_dict:
+                query_as_list[word_idx] = max(corrections_dict,
+                                              key=corrections_dict.get)  # choose the most common correction
+            else:
+                query_as_list[word_idx] = spell.correction(word)
+
+        new_query = ' '.join(query_as_list)
+        relevant_docs = searcher.search(new_query)
         return relevant_docs
 
     @property

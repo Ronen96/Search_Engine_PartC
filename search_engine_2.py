@@ -44,6 +44,7 @@ class SearchEngine:
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
         self._indexer.save_index('idx_bench.pkl')
 
+        # self._indexer.save_index('indverted_idx.pkl')
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -120,5 +121,3 @@ class SearchEngine:
     # search_engine.indexer.load_index(config.saveFilesWithoutStem)
     #
     # search_engine.search('healthy people should NOT wear masks')
-
-# main()

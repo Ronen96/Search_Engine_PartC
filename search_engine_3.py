@@ -48,8 +48,8 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
             #     self._indexer.docs_dict = {}
-
-        self._indexer.save_index('idx_bench_advanced_parser.pkl')
+        # self._indexer.save_index('indverted_idx.pkl')
+        self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -98,28 +98,28 @@ class SearchEngine:
         return self._indexer
 
 
-def main():
-    config = ConfigClass()
-    path = config.get__corpusPath()
-    search_engine = SearchEngine(config)
-
-    files_in_folder = glob2.glob(path + '/**/*.parquet')
-    start_time = time.time()
-    for fp in files_in_folder:
-        search_engine.build_index_from_parquet(fp)
-
-    end_time = time.time()
-    print("--- %s seconds ---" % (end_time - start_time))
-
-    # ---------build inverted index---------------
-    with open('inverted_idx.pkl', 'wb') as f:
-        pickle.dump(search_engine.indexer.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
-
-    # with open('indverted_idx.pkl', 'rb') as f:
-    #     inverted_index = pickle.load(f)
-    #
-    # with open('posting_dict.pkl', 'rb') as f:
-    #     posting_dict = pickle.load(f)
+# def main():
+#     config = ConfigClass()
+#     path = config.get__corpusPath()
+#     search_engine = SearchEngine(config)
+#
+#     files_in_folder = glob2.glob(path + '/**/*.parquet')
+#     start_time = time.time()
+#     for fp in files_in_folder:
+#         search_engine.build_index_from_parquet(fp)
+#
+#     end_time = time.time()
+#     print("--- %s seconds ---" % (end_time - start_time))
+#
+#     ---------build inverted index---------------
+#     with open('inverted_idx.pkl', 'wb') as f:
+#         pickle.dump(search_engine.indexer.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
+#
+#     with open('indverted_idx.pkl', 'rb') as f:
+#         inverted_index = pickle.load(f)
+#
+#     with open('posting_dict.pkl', 'rb') as f:
+#         posting_dict = pickle.load(f)
 
 
 

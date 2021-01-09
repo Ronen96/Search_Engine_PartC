@@ -46,7 +46,7 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-
+        # self._indexer.save_index('indverted_idx.pkl')
         self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
@@ -120,18 +120,18 @@ class SearchEngine:
     def indexer(self):
         return self._indexer
 
-def main():
-    config = ConfigClass()
-    path = config.get__corpusPath()
-    search_engine = SearchEngine(config)
+# def main():
+#     config = ConfigClass()
+#     path = config.get__corpusPath()
+#     search_engine = SearchEngine(config)
 #
-#     # files_in_folder = glob2.glob(path + '/**/*.parquet')
-#     # start_time = time.time()
-#     # for fp in files_in_folder:
-#     #     search_engine.build_index_from_parquet(fp)
-#     #
-#     # end_time = time.time()
-#     # print("--- %s seconds ---" % (end_time - start_time))
+#     files_in_folder = glob2.glob(path + '/**/*.parquet')
+#     start_time = time.time()
+#     for fp in files_in_folder:
+#         search_engine.build_index_from_parquet(fp)
 #
-    search_engine.indexer.load_index('idx_bench.pkl')
+#     end_time = time.time()
+#     print("--- %s seconds ---" % (end_time - start_time))
+#
+#     search_engine.indexer.load_index('idx_bench.pkl')
 
