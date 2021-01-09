@@ -126,13 +126,6 @@ class Parse:
 
         i = 0
         covid = ['COVID', 'COVID19', 'CORONAVIRUS', 'CORONA']
-        # while i < len(text_tokens_without_stopwords):
-        #     # covid rule
-        #     if text_tokens_without_stopwords[i].upper() in covid:
-        #         if i < len(text_tokens_without_stopwords) - 1 and (text_tokens_without_stopwords[i + 1] == '19' or
-        #                                                            text_tokens_without_stopwords[i + 1].upper() == 'VIRUS'):
-        #             i += 1
-        #         after_parse.append('covid19')
 
         while i < len(text_tokens_without_stopwords):
             # covid rule
@@ -207,6 +200,11 @@ class Parse:
 
         # while '' in after_parse: after_parse.remove('')
         after_parse = [w for w in after_parse if w not in symbols or w != '']
+
+        # after_stem = []
+        # for token in after_parse:
+        #     after_stem.append(stemmer.stem_term(token))
+        # after_parse = after_stem
 
         return after_parse
 

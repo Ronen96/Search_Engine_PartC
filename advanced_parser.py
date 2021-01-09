@@ -159,7 +159,7 @@ class Advanced_Parse:
                 after_parse.append('Donald Trump')
 
             # Mask rule
-            if any(mask_expression in text_tokens_without_stopwords[i].upper() for mask_expression in donald_trump):
+            if any(mask_expression in text_tokens_without_stopwords[i].upper() for mask_expression in mask):
                 after_parse.append('MASK')
 
             # hashtag
@@ -229,8 +229,12 @@ class Advanced_Parse:
 
             i += 1
 
-        # while '' in after_parse: after_parse.remove('')
         after_parse = [w for w in after_parse if w not in symbols or w != '']
+
+        # after_stem = []
+        # for token in after_parse:
+        #     after_stem.append(stemmer.stem_term(token))
+        # after_parse = after_stem
 
         return after_parse
 

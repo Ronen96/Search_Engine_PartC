@@ -1,17 +1,17 @@
+import csv
+import os
+import pickle
 import time
 
 import glob2
 import pandas as pd
-from nltk.corpus import wordnet
-
-import metrics
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
 import utils
-from spellchecker import SpellChecker
+import metrics
 
 
 # DO NOT CHANGE THE CLASS NAME
@@ -47,6 +47,7 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
 
+        # self._indexer.save_index('indverted_idx.pkl')
         self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
@@ -70,8 +71,9 @@ class SearchEngine:
         """
         pass
 
-    # DO NOT MODIFY THIS SIGNATURE
-    # You can change the internal implementation as you see fit.
+        # DO NOT MODIFY THIS SIGNATURE
+        # You can change the internal implementation as you see fit.
+
     def search(self, query):
         """
         Executes a query over an existing index and returns the number of
@@ -84,54 +86,53 @@ class SearchEngine:
             and the last is the least relevant result.
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        query_as_list = self._parser.parse_sentence(query)
-        inverted_idx = self.indexer.inverted_idx
-        spell = SpellChecker()
-        misspelled = spell.unknown(query_as_list)
-        assist = [x.lower() for x in query_as_list]  # all the query terms in lower case
-
-        for word in misspelled:
-            if word.upper() in inverted_idx.keys() or word.lower() in inverted_idx.keys() or ' ' in word:
-                continue  # if the word is in the inverted index- no correction need
-
-            word_idx = assist.index(word)
-            corrections = spell.edit_distance_1(word)  # list of all the suggested corrections with distance value 1
-            corrections_dict = {}
-            # check if the suggested corrections is in inverted index and collect the frequency of each correction
-            for correction in corrections:
-                if correction.upper() in inverted_idx.keys():
-                    corrections_dict[correction] = inverted_idx[correction.upper()]
-
-                if correction.lower() in inverted_idx.keys():
-                    corrections_dict[correction] = inverted_idx[correction.lower()]
-
-            if corrections_dict:
-                query_as_list[word_idx] = max(corrections_dict,
-                                              key=corrections_dict.get)  # choose the most common correction
-            else:
-                query_as_list[word_idx] = spell.correction(word)
-
-        new_query = ' '.join(query_as_list)
-        relevant_docs = searcher.search(new_query)
-
+        query_as_list = query.split(' ')
+        expand_query(query_as_list)
+        query = ' '.join(query_as_list)
+        relevant_docs = searcher.search(query)
         return relevant_docs
 
     @property
     def indexer(self):
         return self._indexer
 
+
 def main():
     config = ConfigClass()
     path = config.get__corpusPath()
     search_engine = SearchEngine(config)
-#
-#     # files_in_folder = glob2.glob(path + '/**/*.parquet')
-#     # start_time = time.time()
-#     # for fp in files_in_folder:
-#     #     search_engine.build_index_from_parquet(fp)
-#     #
-#     # end_time = time.time()
-#     # print("--- %s seconds ---" % (end_time - start_time))
-#
+    #
+    # files_in_folder = glob2.glob(path + '/**/*.parquet')
+    # start_time = time.time()
+    # for fp in files_in_folder:
+    #     search_engine.build_index_from_parquet(fp)
+    #
+    # end_time = time.time()
+    # print("--- %s seconds ---" % (end_time - start_time))
+    #
+    #     # search_engine.indexer.load_index('indverted_idx.pkl')
     search_engine.indexer.load_index('idx_bench.pkl')
+    search_engine.search('healthy people should NOT wear masks')
 
+
+#
+
+#
+def expand_query(query):
+    with open('associations_matrix.pkl', 'rb') as matrix_from_file:
+        association_matrix = pickle.load(matrix_from_file)
+    expansion = []
+    relevant_terms = sorted(association_matrix, key=association_matrix.get, reverse=True)
+    for term in query:
+        if term not in association_matrix.keys():
+            continue
+        lst = association_matrix[term]
+        idx_max_val = lst.index(max(lst))
+        expansion.append(relevant_terms[idx_max_val])
+
+    return query.extend(expansion)
+
+
+def merge_posting_files(dict1, dict2):
+    new = {key: dict1.get(key, []) + dict2.get(key, []) for key in set(list(dict1.keys()) + list(dict2.keys()))}
+    return new
