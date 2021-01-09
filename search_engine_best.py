@@ -47,7 +47,6 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
 
-        # self._indexer.save_index('indverted_idx.pkl')
         self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
 
@@ -108,7 +107,7 @@ def main():
     print("--- %s seconds ---" % (end_time - start_time))
 #
 #     # search_engine.indexer.load_index('indverted_idx.pkl')
-#     search_engine.indexer.load_index('idx_bench.pkl')
+    search_engine.indexer.load_index('idx_bench.pkl')
 #
     # with open('indverted_idx.pkl', 'rb') as f:
     #     search_engine.indexer.inverted_idx = pickle.load(f)

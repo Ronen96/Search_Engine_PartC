@@ -127,28 +127,28 @@ def main():
 
 
 
-    files_in_folder = glob2.glob('C:\\Users\\barif\\PycharmProjects\\Search_Engine_PartC\\posting' + '/**/*.pkl')
-    with open('posting_dict_75906.pkl', 'rb') as f:
-        posting1 = pickle.load(f)
-    for file in files_in_folder:
-        with open(file, 'rb') as f:
-            posting2 = pickle.load(f)
-        new = merge_posting_files(posting1, posting2)
-        posting1 = new
-    with open('posting_dict.pkl', 'wb') as f:
-        pickle.dump(new, f)
+    # files_in_folder = glob2.glob('C:\\Users\\barif\\PycharmProjects\\Search_Engine_PartC\\posting' + '/**/*.pkl')
+    # with open('posting_dict_75906.pkl', 'rb') as f:
+    #     posting1 = pickle.load(f)
+    # for file in files_in_folder:
+    #     with open(file, 'rb') as f:
+    #         posting2 = pickle.load(f)
+    #     new = merge_posting_files(posting1, posting2)
+    #     posting1 = new
+    # with open('posting_dict.pkl', 'wb') as f:
+    #     pickle.dump(new, f)
 
     with open('inverted_idx.pkl', 'rb') as f:
         search_engine.indexer.inverted_idx = pickle.load(f)
 
-    with open('posting_dict.pkl', 'rb') as f:
-        search_engine.indexer.postingDict = pickle.load(f)
+    # with open('posting_dict.pkl', 'rb') as f:
+    #     search_engine.indexer.postingDict = pickle.load(f)
 
     sorted_inverted = sorted(search_engine.indexer.inverted_idx.items(), key=lambda item: item[1], reverse=True)
     # sorted_posting = sorted(search_engine.indexer.postingDict.items(), key=lambda item: item[1], reverse=True)
     #
-    with open('3K_terms.pkl', 'wb') as f:
-        pickle.dump(sorted_inverted[:3000], f, pickle.HIGHEST_PROTOCOL)
+    # with open('1K_terms.pkl', 'wb') as f:
+    #     pickle.dump(sorted_inverted[:1000], f, pickle.HIGHEST_PROTOCOL)
     #
     # with open('posting_3k.pkl', 'wb') as f:
     #     pickle.dump(sorted_posting[:3000], f, pickle.HIGHEST_PROTOCOL)
@@ -157,8 +157,9 @@ def main():
 #     search_engine.indexer.load_index('idx_bench_advanced_parser.pkl')
 
 def expand_query(query):
-    with open('associations_matrix.pkl', 'rb') as matrix_from_file:
+    with open('model/associations_matrix.pkl', 'rb') as matrix_from_file:
         association_matrix = pickle.load(matrix_from_file)
+
     expansion = []
     relevant_terms = sorted(association_matrix, key=association_matrix.get, reverse=True)
     for term in query:
