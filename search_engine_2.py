@@ -41,7 +41,7 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        print('Finished parsing and indexing.')
+        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
         self._indexer.save_index('idx_bench.pkl')
 
 
