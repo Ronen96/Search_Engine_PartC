@@ -2,13 +2,15 @@
 # break the searcher module
 import math
 
+from numpy import dot
+
 
 class Ranker:
     def __init__(self):
         pass
 
     @staticmethod
-    def rank_relevant_docs(relevant_docs, k=None):
+    def rank_relevant_docs(relevant_docs, norm_query, k=None):
         """
         This function provides rank for each relevant document and sorts them by their scores.
         The current score considers solely the number of terms shared by the tweet (full_text) and query.
@@ -18,11 +20,13 @@ class Ranker:
         """
         ranked_results = {}
         for doc in relevant_docs.keys():
-            sum_wij = sum(relevant_docs[doc])
+            sum_wij_wiq = dot(relevant_docs[doc], norm_query)
             sum_wij2 = sum([x ** 2 for x in relevant_docs[doc]])
-            sum_wiq2 = len(relevant_docs[doc])
-            cos_similarity = sum_wij / math.sqrt(sum_wij2 * sum_wiq2)
-            ranked_results[doc] = cos_similarity
+            # sum_wiq2 = len(relevant_docs[doc])
+            sum_wiq2 = sum([x ** 2 for x in norm_query])
+            cos_similarity = sum_wij_wiq / math.sqrt(sum_wij2 * sum_wiq2)
+            if cos_similarity >= 0.5:
+                ranked_results[doc] = cos_similarity
 
         ranked_results = sorted(ranked_results.items(), key=lambda item: item[1], reverse=True)
 

@@ -33,13 +33,13 @@ class Searcher:
         """
         query_as_list = self._parser.parse_sentence(query)
 
-        relevant_docs = self._relevant_docs_from_posting(query_as_list)
+        relevant_docs, query_vec = self._relevant_docs_from_posting(query_as_list)
         n_relevant = len(relevant_docs)
 
-        ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
-        if n_relevant > k:
-            proportion = round(n_relevant * 0.7)
-            ranked_doc_ids = ranked_doc_ids[:proportion]
+        ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs, query_vec)
+        # if n_relevant > k:
+        #     proportion = round(n_relevant * 0.75)
+        #     ranked_doc_ids = ranked_doc_ids[:proportion]
         return n_relevant, ranked_doc_ids
 
     # feel free to change the signature and/or implementation of this function 
@@ -83,58 +83,8 @@ class Searcher:
                 docs_vector[doc_id][i] = tf * idf
             i += 1
 
+        norm_query = {}
+        for key in query_dict:
+            norm_query[key] = query_dict[key] / len(query_dict.keys())
+        return docs_vector, list(norm_query.values())
 
-        # query_vec = []
-        #
-        # for term in query_dict:
-        #     query_vec.append(query_dict[term])
-        #
-        # normalized_query = np.divide(query_vec, max(query_vec))
-        # for word in query_dict.keys():
-        #     try:
-        #         if word in self._indexer.inverted_idx.keys():
-        #             dfi = self._indexer.inverted_idx[word]
-        #             idf.append(math.log(len(self._indexer.docs_dict.keys()) / dfi, 2))
-        #
-        #             for doc in docs_vector.keys():
-        #                 exist = False
-        #                 for pair in docs_vector[doc]:
-        #                     if word == pair[0]:
-        #                         relevant_docs[doc].append(pair[1])
-        #                         exist = True
-        #
-        #                 if not exist:
-        #                     relevant_docs[doc].append(0)
-        #
-        #             max_tf = j_content[key][0]
-        #             relevant_docs[key] = np.divide(relevant_docs[key], max_tf)
-        #             relevant_docs[key] = np.multiply(relevant_docs[key], idf)
-        #
-        #     except:
-        #         print('term {} not found in inverted index'.format(word))
-
-        # divide each element in the vector by thr max(f) of the doc. the information in docs_dict
-
-        # with open('docs_dict.json', 'r') as f:
-        #     for line in f:
-        #         j_content = json.loads(line)
-        #         key = [*j_content][0]
-        #         if key in relevant_docs.keys():
-        #             max_tf = j_content[key][0]
-        #             relevant_docs[key] = np.divide(relevant_docs[key], max_tf)
-        #             relevant_docs[key] = np.multiply(relevant_docs[key], idf)
-
-        # calculate idf of each element in the vector (idf is log2(number of docs in the corpus \ df(from inverted index)
-
-        # multiply tf*idf of each element
-
-        # return relevant docs
-
-        return docs_vector #relevant_docs
-        # relevant_docs = {}
-        # for term in query_as_list:
-        #     posting_list = self._indexer.get_term_posting_list(term)
-        #     for doc_id, tf, index_in_text in posting_list:
-        #         df = relevant_docs.get(doc_id, 0)
-        #         relevant_docs[doc_id] = df + 1
-        # return relevant_docs
