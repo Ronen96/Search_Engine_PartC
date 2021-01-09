@@ -126,7 +126,7 @@ class Advanced_Parse:
 
         i = 0
         covid = ['COVID', 'COVID19', 'CORONAVIRUS', 'CORONA']
-        united_states = ['US', 'USA', 'UNITED', 'STATES']
+        united_states = ['US', 'U.S.', 'USA', 'UNITED']
         donald_trump = ['TRUMP', 'DONALD', 'PRESIDENT', 'PRES', 'TRUMPS']
         mask = ['MASK', 'MASKS', 'N95', 'KN95']
 
@@ -138,11 +138,6 @@ class Advanced_Parse:
                                                                        i + 1].upper() == 'VIRUS'):
                     i += 1
                 after_parse.append('COVID19')
-            # if i < len(text_tokens_without_stopwords) - 1 and (text_tokens_without_stopwords[i + 1] == 'CHINA' or
-            #                                                    text_tokens_without_stopwords[
-            #                                                        i + 1].upper() == 'VIRUS'):
-            #     i += 1
-            #     after_parse.append('COVID19')
 
             # United States rule
             elif any(us_expression in text_tokens_without_stopwords[i].upper() for us_expression in united_states):

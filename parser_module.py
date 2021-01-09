@@ -140,10 +140,6 @@ class Parse:
             # hashtag
             elif text_tokens_without_stopwords[i][0] == '#':
                 hashtag = self.parse_hashtags(text_tokens_without_stopwords[i])
-                for h in range(len(hashtag)):
-                    if hashtag[h].upper() in covid:
-                        hashtag.remove(hashtag[h])
-                        hashtag.insert(h, 'covid19')
                 after_parse.extend(hashtag)
 
             # tagging

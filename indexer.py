@@ -46,7 +46,6 @@ class Indexer:
                 # index_in_text = [n for n, x in enumerate(document.full_text.split()) if x == term]
                 if document_dictionary[term] == 1:  # save the amount of unique words in document
                     count_unique_words += 1
-                # first char is uppercase
                 # first char is number
                 if term[0].isdigit():
                     to_index = False
@@ -70,6 +69,7 @@ class Indexer:
                 elif '.' in term:
                     continue
 
+                # first char is uppercase
                 elif term[0].isupper():
                     # entity
                     if term in self.inverted_idx.keys():
@@ -78,11 +78,11 @@ class Indexer:
                     elif term in self.names_dict:
                         temp_term = term
                         self.inverted_idx[temp_term] = 2
-                        self.postingDict[temp_term] = []
+                        self.postingDict[temp_term] = [self.names_dict[temp_term]]
                         del (self.names_dict[temp_term])
 
                     elif ' ' in term:
-                        self.names_dict[term] = 1
+                        self.names_dict[term] = (document.tweet_id, document_dictionary[term], sum(document_dictionary.values()))
 
                     # regular word
                     elif term.lower() in self.inverted_idx.keys():
@@ -96,18 +96,6 @@ class Indexer:
                         temp_term = term.upper()
                         self.inverted_idx[temp_term] = 1
                         self.postingDict[temp_term] = []
-
-                # # first char is @ or #
-                # elif term[0] == '@' or term[0] == '#':
-                #     temp_term = term
-                #     if term not in self.inverted_idx.keys():
-                #         self.inverted_idx[temp_term] = [1, []]
-                #         self.postingDict[temp_term] = []
-                #     elif term not in self.postingDict.keys():
-                #         self.postingDict[temp_term] = []
-                #         self.inverted_idx[temp_term][0] += 1
-                #     else:
-                #         self.inverted_idx[temp_term][0] += 1
 
                 # other
                 elif term[0].islower():
@@ -130,8 +118,6 @@ class Indexer:
                     self.postingDict[temp_term].append((document.tweet_id, document_dictionary[term],
                                                         sum(document_dictionary.values())))
                 term_num_check += 1
-
-
 
             except:
                 pass
