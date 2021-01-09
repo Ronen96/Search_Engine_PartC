@@ -145,21 +145,21 @@ class Advanced_Parse:
             #     after_parse.append('COVID19')
 
             # United States rule
-            if any(us_expression in text_tokens_without_stopwords[i].upper() for us_expression in united_states):
+            elif any(us_expression in text_tokens_without_stopwords[i].upper() for us_expression in united_states):
                 if i < len(text_tokens_without_stopwords) - 1 and (text_tokens_without_stopwords[i + 1].upper()) == 'STATES':
                     i += 1
 
                 after_parse.append('USA')
 
             # Donald Trump rule
-            if any(trump_expression in text_tokens_without_stopwords[i].upper() for trump_expression in donald_trump):
+            elif any(trump_expression in text_tokens_without_stopwords[i].upper() for trump_expression in donald_trump):
                 if i < len(text_tokens_without_stopwords) - 1 and (text_tokens_without_stopwords[i + 1].upper()) == 'TRUMP':
                     i += 1
 
                 after_parse.append('Donald Trump')
 
             # Mask rule
-            if any(mask_expression in text_tokens_without_stopwords[i].upper() for mask_expression in mask):
+            elif any(mask_expression in text_tokens_without_stopwords[i].upper() for mask_expression in mask):
                 after_parse.append('MASK')
 
             # hashtag

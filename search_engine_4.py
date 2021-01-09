@@ -46,10 +46,14 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-
         # self._indexer.save_index('indverted_idx.pkl')
-        self._indexer.save_index('idx_bench.pkl')
+        # self._indexer.save_index('idx_bench.pkl')
         print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
+        with open('posting_dict_' + str(number_of_documents) + '.pkl', 'wb') as f:
+            pickle.dump(self._indexer.postingDict, f)
+
+        self._indexer.docs_dict = {}
+        self._indexer.postingDict = {}
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -101,7 +105,7 @@ def main():
     config = ConfigClass()
     path = config.get__corpusPath()
     search_engine = SearchEngine(config)
-    #
+
     # files_in_folder = glob2.glob(path + '/**/*.parquet')
     # start_time = time.time()
     # for fp in files_in_folder:
@@ -110,14 +114,48 @@ def main():
     # end_time = time.time()
     # print("--- %s seconds ---" % (end_time - start_time))
     #
-    #     # search_engine.indexer.load_index('indverted_idx.pkl')
-    search_engine.indexer.load_index('idx_bench.pkl')
-    search_engine.search('healthy people should NOT wear masks')
+    # with open('inverted_idx.pkl', 'wb') as f:
+    #     pickle.dump(search_engine.indexer.inverted_idx, f)
 
 
-#
+    # search_engine.indexer.load_index('indverted_idx.pkl')
+    #
+    # search_engine.indexer.load_index('idx_bench.pkl')
+    # search_engine.search('healthy people should NOT wear masks')
+    #
 
-#
+
+
+
+    files_in_folder = glob2.glob('C:\\Users\\barif\\PycharmProjects\\Search_Engine_PartC\\posting' + '/**/*.pkl')
+    with open('posting_dict_75906.pkl', 'rb') as f:
+        posting1 = pickle.load(f)
+    for file in files_in_folder:
+        with open(file, 'rb') as f:
+            posting2 = pickle.load(f)
+        new = merge_posting_files(posting1, posting2)
+        posting1 = new
+    with open('posting_dict.pkl', 'wb') as f:
+        pickle.dump(new, f)
+
+    with open('inverted_idx.pkl', 'rb') as f:
+        search_engine.indexer.inverted_idx = pickle.load(f)
+
+    with open('posting_dict.pkl', 'rb') as f:
+        search_engine.indexer.postingDict = pickle.load(f)
+
+    sorted_inverted = sorted(search_engine.indexer.inverted_idx.items(), key=lambda item: item[1], reverse=True)
+    # sorted_posting = sorted(search_engine.indexer.postingDict.items(), key=lambda item: item[1], reverse=True)
+    #
+    with open('3K_terms.pkl', 'wb') as f:
+        pickle.dump(sorted_inverted[:3000], f, pickle.HIGHEST_PROTOCOL)
+    #
+    # with open('posting_3k.pkl', 'wb') as f:
+    #     pickle.dump(sorted_posting[:3000], f, pickle.HIGHEST_PROTOCOL)
+
+
+#     search_engine.indexer.load_index('idx_bench_advanced_parser.pkl')
+
 def expand_query(query):
     with open('associations_matrix.pkl', 'rb') as matrix_from_file:
         association_matrix = pickle.load(matrix_from_file)
