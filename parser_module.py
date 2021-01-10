@@ -12,7 +12,6 @@ class Parse:
     def __init__(self):
         self.stop_words = stopwords.words('english')
         self.stop_words.append('u')
-        # self.stemming = ConfigClass.get__toStem()
 
     def parse_doc(self, doc_as_list):
         """
@@ -117,12 +116,6 @@ class Parse:
                 j += 1
 
             j += 1
-
-        # if self.stemming:
-        #     after_stem = []
-        #     for token in text_tokens_without_stopwords:
-        #         after_stem.append(stemmer.stem_term(token))
-        #     text_tokens_without_stopwords = after_stem
 
         i = 0
         covid = ['COVID', 'COVID19', 'CORONAVIRUS', 'CORONA']
@@ -230,9 +223,11 @@ class Parse:
                         if not two_capital_in_row:
                             two_capital_in_row = True
                             amount_of_rows += 1
-                else:
+                elif hashtag[i].islower():
                     low_or_up += 'l'
                     two_capital_in_row = False
+                else:
+                    pass
 
             if amount_of_rows > 1:
                 hashtag_lst = [s.lower() for s in re.findall('|[A-Z]+|[a-z]+|', hashtag)]
@@ -289,8 +284,6 @@ class Parse:
             if '.' in term:
                 url_parts_to_return.append(term)
 
-        # while '' in url_parts: url_parts.remove('')
-        # return url_parts
         return url_parts_to_return
 
     # tagging

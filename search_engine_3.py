@@ -1,20 +1,8 @@
-import pickle
-import time
 
-import glob2
-import pandas as pd
-from nltk.corpus import wordnet
-
-import metrics
 from advanced_parser import Advanced_Parse
 from reader import ReadFile
-from configuration import ConfigClass
-from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
-import utils
-from spellchecker import SpellChecker
-
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -47,10 +35,10 @@ class SearchEngine:
             parsed_document = self._parser.parse_doc(document)
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-            #     self._indexer.docs_dict = {}
-        # self._indexer.save_index('indverted_idx.pkl')
-        self._indexer.save_index('idx_bench.pkl')
-        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
+
+        # self._indexer.save_index('inverted_idx.pkl')
+        # self._indexer.save_index('idx_bench.pkl')
+        print('Finished parsing and indexing.')
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -86,9 +74,6 @@ class SearchEngine:
             and the last is the least relevant result.
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        query_as_list = self._parser.parse_sentence(query)
-        inverted_idx = self.indexer.inverted_idx
-
         relevant_docs = searcher.search(query)
 
         return relevant_docs
@@ -96,32 +81,3 @@ class SearchEngine:
     @property
     def indexer(self):
         return self._indexer
-
-
-# def main():
-#     config = ConfigClass()
-#     path = config.get__corpusPath()
-#     search_engine = SearchEngine(config)
-#
-#     files_in_folder = glob2.glob(path + '/**/*.parquet')
-#     start_time = time.time()
-#     for fp in files_in_folder:
-#         search_engine.build_index_from_parquet(fp)
-#
-#     end_time = time.time()
-#     print("--- %s seconds ---" % (end_time - start_time))
-#
-#     ---------build inverted index---------------
-#     with open('inverted_idx.pkl', 'wb') as f:
-#         pickle.dump(search_engine.indexer.inverted_idx, f, pickle.HIGHEST_PROTOCOL)
-#
-#     with open('indverted_idx.pkl', 'rb') as f:
-#         inverted_index = pickle.load(f)
-#
-#     with open('posting_dict.pkl', 'rb') as f:
-#         posting_dict = pickle.load(f)
-
-
-
-
-

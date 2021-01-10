@@ -12,7 +12,6 @@ class Advanced_Parse:
     def __init__(self):
         self.stop_words = stopwords.words('english')
         self.stop_words.append('u')
-        # self.stemming = ConfigClass.get__toStem()
 
     def parse_doc(self, doc_as_list):
         """
@@ -94,7 +93,7 @@ class Advanced_Parse:
         """
         after_parse = []
         # tokenizer:
-        stemmer = Stemmer()
+        # stemmer = Stemmer()
         tweet_tokenizer = TweetTokenizer()
         text_tokens = tweet_tokenizer.tokenize(re.sub(r'[^\x00-\x7f]', r' ', text))
 
@@ -117,12 +116,6 @@ class Advanced_Parse:
                 j += 1
 
             j += 1
-
-        # if self.stemming:
-        # after_stem = []
-        # for token in text_tokens_without_stopwords:
-        #     after_stem.append(stemmer.stem_term(token))
-        # text_tokens_without_stopwords = after_stem
 
         i = 0
         covid = ['COVID', 'COVID19', 'CORONAVIRUS', 'CORONA']
@@ -321,8 +314,6 @@ class Advanced_Parse:
             if '.' in term:
                 url_parts_to_return.append(term)
 
-        # while '' in url_parts: url_parts.remove('')
-        # return url_parts
         return url_parts_to_return
 
     # tagging
@@ -387,6 +378,3 @@ class Advanced_Parse:
                 return curr_name, i
         return curr_name, len(text)
 
-
-# p = Advanced_Parse()
-# print(p.parse_hashtags('#COVID19'))

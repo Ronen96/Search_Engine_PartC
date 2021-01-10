@@ -43,7 +43,6 @@ class Indexer:
             try:  # Update inverted index and posting
                 temp_term = ''
 
-                # index_in_text = [n for n, x in enumerate(document.full_text.split()) if x == term]
                 if document_dictionary[term] == 1:  # save the amount of unique words in document
                     count_unique_words += 1
                 # first char is number
@@ -121,33 +120,12 @@ class Indexer:
 
             except:
                 pass
-                # print('problem with the following key {}'.format(term))
-                # print(document_dictionary.keys())
-                # print(self.num_of_docs_in_corpus, term_num_check)
         self.num_of_docs_in_corpus += 1
 
         if document_dictionary:  # if dict isn't empty
             self.docs_dict[document.tweet_id] = (
                 document_dictionary[max(document_dictionary, key=document_dictionary.get)], document.tweet_date,
                 count_unique_words)
-
-        # TODO: check if docs dict suppose to be in memory
-        # with open('docs_dict.json', 'a') as outfile:
-        #     for key in self.docs_dict.keys():
-        #         json.dump({key: self.docs_dict[key]}, outfile)
-        #         outfile.write('\n')
-
-        # sorted_posting_keys = sorted(self.postingDict.keys(), key=lambda x: x.lower())
-
-    # with open((output_path + '\\other.json'), 'a') as outfile:
-    #     while i < len(sorted_posting_keys) and not sorted_posting_keys[i][0].isalpha() and not \
-    #             sorted_posting_keys[i][0] == '@' and not sorted_posting_keys[i][0].isdigit() and not \
-    #             sorted_posting_keys[i][0] == '#':
-    #         json.dump({sorted_posting_keys[i]: self.postingDict[sorted_posting_keys[i]]}, outfile)
-    #         outfile.write('\n')
-    #         self.inverted_idx[sorted_posting_keys[i]][1].append(self.file_line_indexes['other'])
-    #         self.file_line_indexes['other'] += 1
-    #         i += 1
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.

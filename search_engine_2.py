@@ -1,13 +1,8 @@
-import pandas as pd
 from reader import ReadFile
-from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
-import utils
 from nltk.corpus import wordnet
-import glob2
-
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -41,10 +36,10 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
-        self._indexer.save_index('idx_bench.pkl')
+        print('Finished parsing and indexing.')
 
-        # self._indexer.save_index('indverted_idx.pkl')
+        # self._indexer.save_index('idx_bench.pkl')
+        # self._indexer.save_index('inverted_idx.pkl')
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -105,19 +100,3 @@ class SearchEngine:
     @property
     def indexer(self):
         return self._indexer
-
-
-# def main():
-    # config = ConfigClass()
-    # path = config.get__corpusPath()
-    # search_engine = SearchEngine(config)
-    #
-    # # files_in_folder = glob2.glob(path + '/**/*.parquet')
-    # # for fp in files_in_folder:
-    # #     search_engine.build_index_from_parquet(fp)
-    #
-    # # search_engine._indexer.save_index(config.saveFilesWithoutStem)
-    #
-    # search_engine.indexer.load_index(config.saveFilesWithoutStem)
-    #
-    # search_engine.search('healthy people should NOT wear masks')

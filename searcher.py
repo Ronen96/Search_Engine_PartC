@@ -1,7 +1,5 @@
 import math
-
 from ranker import Ranker
-import utils
 
 
 # DO NOT MODIFY CLASS NAME
@@ -37,11 +35,6 @@ class Searcher:
         n_relevant = len(relevant_docs)
 
         ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs, query_vec)
-        # if n_relevant < k:
-        # #     proportion = round(n_relevant * 0.8)
-        # #     ranked_doc_ids = ranked_doc_ids[:proportion]
-        # else:
-        #     ranked_doc_ids = ranked_doc_ids[:k]
         return n_relevant, ranked_doc_ids
 
     # feel free to change the signature and/or implementation of this function 
@@ -52,10 +45,10 @@ class Searcher:
         :param query_as_list: parsed query tokens
         :return: dictionary of relevant documents mapping doc_id to document frequency.
         """
-        relevant_docs = {}  # key- tweet id , value- words vector
-        docs_vector = {}  # key- docID, value- vector of words
 
+        docs_vector = {}  # key- docID, value- vector of words
         query_dict = {}  # to check how many times word appear in the query
+
         for term in query_as_list:
             try:
                 if term in self._indexer.inverted_idx.keys():
@@ -80,14 +73,12 @@ class Searcher:
             for doc_id, fi, doc_len in self._indexer.postingDict[term]:
                 if doc_id not in docs_vector.keys():
                     docs_vector[doc_id] = [0] * len(query_dict.keys())
-                tf = fi / self._indexer.docs_dict[doc_id][0] #doc_len
+                tf = fi / self._indexer.docs_dict[doc_id][0]  # doc_len
                 idf = math.log(len(self._indexer.docs_dict.keys()) / self._indexer.inverted_idx[term], 2)
                 docs_vector[doc_id][i] = tf * idf
             i += 1
 
         norm_query = {}
         for key in query_dict:
-            # norm_query[key] = query_dict[key] / len(query_dict.keys())
             norm_query[key] = query_dict[key] / max(query_dict.values())
         return docs_vector, list(norm_query.values())
-

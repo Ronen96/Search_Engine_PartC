@@ -112,5 +112,3 @@ class GlobalMethod(object):
             expansion.append(relevant_terms[idx_max_val])
 
         return query.extend(expansion)
-
-# GlobalMethod.build_matrix()

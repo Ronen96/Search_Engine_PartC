@@ -23,16 +23,12 @@ class Ranker:
         ranked_results = {}
         for doc in relevant_docs.keys():
             sum_wij_wiq = dot(relevant_docs[doc], norm_query)
-            # sum_wij2 = sum([x ** 2 for x in relevant_docs[doc]])
-            # sum_wiq2 = sum([x ** 2 for x in norm_query])
-            # cos_similarity = sum_wij_wiq / math.sqrt(sum_wij2 * sum_wiq2)
             cos_similarity = sum_wij_wiq / (norm(relevant_docs[doc]) * norm(norm_query))
-            # if cos_similarity >= 0.5:
             ranked_results[doc] = cos_similarity
 
         ranked_results = sorted(ranked_results.items(), key=lambda item: item[1], reverse=True)
 
         if k is not None:
             ranked_results = ranked_results[:k]
-        return [d for d in ranked_results]
+        return [d[0] for d in ranked_results]
 

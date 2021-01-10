@@ -1,14 +1,8 @@
-import time
-
-import glob2
 from spellchecker import SpellChecker
-
-from configuration import ConfigClass
 from indexer import Indexer
 from parser_module import Parse
 from reader import ReadFile
 from searcher import Searcher
-
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -42,9 +36,11 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        # self._indexer.save_index('indverted_idx.pkl')
-        self._indexer.save_index('idx_bench.pkl')
-        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
+
+        self._indexer.save_index('inverted_idx.pkl')
+        # self._indexer.save_index('idx_bench.pkl')
+
+        print('Finished parsing and indexing.')
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -116,40 +112,8 @@ class SearchEngine:
     @property
     def indexer(self):
         return self._indexer
-
-
-def main():
-    config = ConfigClass()
-    path = config.get__corpusPath()
-    search_engine = SearchEngine(config)
 #
-    files_in_folder = glob2.glob(path + '/**/*.parquet')
-    start_time = time.time()
-    for fp in files_in_folder:
-        search_engine.build_index_from_parquet(fp)
-
-    end_time = time.time()
-    print("--- %s seconds ---" % (end_time - start_time))
-#
-#     # search_engine.indexer.load_index('indverted_idx.pkl')
-    search_engine.indexer.load_index('idx_bench.pkl')
-#
-    # with open('indverted_idx.pkl', 'rb') as f:
-    #     search_engine.indexer.inverted_idx = pickle.load(f)
-    #
-    # with open('posting_dict.pkl', 'rb') as f:
-    #     search_engine.indexer.postingDict = pickle.load(f)
-    #
-    # sorted_inverted = sorted(search_engine.indexer.inverted_idx.items(), key=lambda item: item[1], reverse=True)
-    # sorted_posting = sorted(search_engine.indexer.postingDict.items(), key=lambda item: item[1], reverse=True)
-    #
-    # with open('3K_terms.pkl', 'wb') as f:
-    #     pickle.dump(sorted_inverted[:3000], f, pickle.HIGHEST_PROTOCOL)
-    #
-    # with open('posting_3k.pkl', 'wb') as f:
-    #     pickle.dump(sorted_posting[:3000], f, pickle.HIGHEST_PROTOCOL)
-#
-#     # write ranked result to csv
+# #     # write ranked result to csv
 #     with open('queries.txt', encoding="utf8") as f:
 #         # line_number = 0
 #         data_to_csv = pd.DataFrame(columns=['query number', 'tweet id', 'Rank'])

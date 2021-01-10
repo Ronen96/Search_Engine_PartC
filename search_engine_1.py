@@ -1,18 +1,8 @@
-import time
-
-import glob2
-import pandas as pd
-from nltk.corpus import wordnet
-
-import metrics
 from reader import ReadFile
-from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
-import utils
 from spellchecker import SpellChecker
-
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -46,9 +36,9 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        # self._indexer.save_index('indverted_idx.pkl')
-        self._indexer.save_index('idx_bench.pkl')
-        print('Finished parsing and indexing.', 'inverted_index_len:', len(self._indexer.inverted_idx.keys()))
+        # self._indexer.save_index('inverted_idx.pkl')
+        # self._indexer.save_index('idx_bench.pkl')
+        print('Finished parsing and indexing.')
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -119,19 +109,3 @@ class SearchEngine:
     @property
     def indexer(self):
         return self._indexer
-
-# def main():
-#     config = ConfigClass()
-#     path = config.get__corpusPath()
-#     search_engine = SearchEngine(config)
-#
-#     files_in_folder = glob2.glob(path + '/**/*.parquet')
-#     start_time = time.time()
-#     for fp in files_in_folder:
-#         search_engine.build_index_from_parquet(fp)
-#
-#     end_time = time.time()
-#     print("--- %s seconds ---" % (end_time - start_time))
-#
-#     search_engine.indexer.load_index('idx_bench.pkl')
-
